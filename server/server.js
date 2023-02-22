@@ -24,7 +24,7 @@ app.get("/posts", async (req, res) => {
     },
   });
 
-  res.status(200).json({ posts });
+  res.status(200).json(posts);
 });
 
 const port = process.env.PORT || 4000;
