@@ -1,5 +1,12 @@
+import { React } from "react";
+import Posts from "./components/Posts";
+
 const App = () => {
-  return <h1>Hello</h1>;
+  return (
+    <>
+      <Posts />
+    </>
+  );
 };
 
 export default App;

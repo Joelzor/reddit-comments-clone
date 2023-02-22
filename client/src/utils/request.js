@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_SERVER_URL,
+  // https://vitejs.dev/guide/env-and-mode.html
+  baseURL: import.meta.env.VITE_SERVER_URL,
   // gives the cookie to the server
   withCredentials: true,
 });
