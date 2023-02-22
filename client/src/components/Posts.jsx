@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from "react";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import getPosts from "../utils/posts";
 
 const Posts = () => {
@@ -15,7 +15,7 @@ const Posts = () => {
   return posts.map((post) => {
     return (
       <h1 key={post.id}>
-        <a href={`/posts/${post.id}`}>{post.title}</a>
+        <Link to={`/posts/${post.id}`}>{post.title}</Link>
       </h1>
     );
   });
