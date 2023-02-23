@@ -1,6 +1,7 @@
 import React from "react";
 import { usePost } from "../contexts/PostContext";
 import Comments from "./Comments";
+import CreateComment from "./CreateComment";
 
 const Post = () => {
   const { post, rootComments } = usePost();
@@ -11,6 +12,7 @@ const Post = () => {
       <article>{post.body}</article>
       <h3 className="comments-title">Comments</h3>
       <section>
+        <CreateComment />
         {rootComments && rootComments.length > 0 && (
           <div className="mt-4">
             <Comments comments={rootComments} />
