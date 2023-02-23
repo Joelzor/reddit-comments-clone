@@ -1,6 +1,6 @@
 import { React } from "react";
 import { Link } from "react-router-dom";
-import getPosts from "../utils/posts";
+import { getPosts } from "../utils/posts";
 import { useAsync } from "../hooks/useAsync";
 
 const Posts = () => {

@@ -35,6 +35,7 @@ app.get("/posts/:id", async (req, res) => {
       id,
     },
     select: {
+      id: true,
       body: true,
       title: true,
       comments: {
