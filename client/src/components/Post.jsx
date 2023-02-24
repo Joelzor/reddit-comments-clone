@@ -6,7 +6,7 @@ import CreateComment from "./CreateComment";
 import { createComment } from "../utils/comments";
 
 const Post = () => {
-  const { post, rootComments } = usePost();
+  const { post, rootComments, createLocalComment } = usePost();
   const {
     loading,
     error,
@@ -14,8 +14,8 @@ const Post = () => {
   } = useAsyncFunction(createComment);
 
   const onCommentCreate = (message) => {
-    return createCommentFn({ postId: post.id, message }).then((comment) =>
-      console.log(comment)
+    return createCommentFn({ postId: post.id, message }).then(
+      createLocalComment
     );
   };
 
