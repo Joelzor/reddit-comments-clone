@@ -20,11 +20,9 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 // cheat log in- always logged in as the same user
-const CURRENT_USER_ID = await prisma.user.findFirst({
-  where: {
-    name: "Kyle",
-  },
-}).id;
+const CURRENT_USER_ID = (
+  await prisma.user.findFirst({ where: { name: "Kyle" } })
+).id;
 
 app.use((req, res, next) => {
   if (req.cookies.userId !== CURRENT_USER_ID) {
@@ -32,8 +30,22 @@ app.use((req, res, next) => {
     res.clearCookie("userId");
     res.cookie("userId", CURRENT_USER_ID);
   }
+
   next();
 });
+
+const COMMENT_SELECT_FIELDS = {
+  id: true,
+  message: true,
+  parentId: true,
+  createdAt: true,
+  user: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+};
 
 app.get("/posts", async (req, res) => {
   const posts = await prisma.post.findMany({
@@ -61,18 +73,7 @@ app.get("/posts/:id", async (req, res) => {
         orderBy: {
           createdAt: "desc",
         },
-        select: {
-          id: true,
-          message: true,
-          parentId: true,
-          createdAt: true,
-          user: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
+        select: COMMENT_SELECT_FIELDS,
       },
     },
   });
@@ -85,14 +86,17 @@ app.post("/posts/:id/comments", async (req, res) => {
     res.status(400).send("A comment cannot be empty");
   }
 
-  await prisma.comment.create({
+  const comment = await prisma.comment.create({
     data: {
       message: req.body.message,
       userId: req.cookies.userId,
       parentId: req.body.parentId,
       postId: req.params.id,
     },
+    select: COMMENT_SELECT_FIELDS,
   });
+
+  res.status(201).json(comment);
 });
 
 const port = process.env.PORT || 4000;
