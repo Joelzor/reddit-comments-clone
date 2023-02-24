@@ -99,6 +99,29 @@ app.post("/posts/:id/comments", async (req, res) => {
   res.status(201).json(comment);
 });
 
+app.put("/posts/:postId/comments/:commentId", async (req, res) => {
+  if (req.body.message === "" || req.body.message === null) {
+    res.status(400).send("A comment cannot be empty");
+  }
+
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+
+  if (userId !== req.cookies.userId) {
+    res.status(403).send("You can't update someone else's comment!");
+  }
+
+  const updatedComment = await prisma.comment.update({
+    where: { id: req.params.commentId },
+    data: { message: req.body.message },
+    select: { message: true },
+  });
+
+  res.status(200).json(updatedComment);
+});
+
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
