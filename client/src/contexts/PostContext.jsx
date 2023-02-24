@@ -59,6 +59,12 @@ const PostProvider = ({ children }) => {
     });
   };
 
+  const deleteLocalComment = (id) => {
+    setComments((prevComments) => {
+      return prevComments.filter((comment) => comment.id !== id);
+    });
+  };
+
   return (
     <Context.Provider
       // commentsByParentId[null] is the group of comments that don't have parent id's - they are not nested comments
@@ -68,6 +74,7 @@ const PostProvider = ({ children }) => {
         rootComments: commentsByParentId[null],
         createLocalComment,
         updateLocalComment,
+        deleteLocalComment,
       }}
     >
       {loading ? (

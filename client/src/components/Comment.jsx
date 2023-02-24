@@ -5,7 +5,7 @@ import { usePost } from "../contexts/PostContext";
 import Comments from "./Comments";
 import CreateComment from "./CreateComment";
 import { useAsyncFunction } from "../hooks/useAsync";
-import { createComment, updateComment } from "../utils/comments";
+import { createComment, updateComment, deleteComment } from "../utils/comments";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -24,8 +24,20 @@ const Comment = ({ id, message, user, createdAt }) => {
     loading: updateLoading,
     execute: commentUpdateFn,
   } = useAsyncFunction(updateComment);
-  const { getReplies, createLocalComment, post, updateLocalComment } =
-    usePost();
+
+  const {
+    error: deleteError,
+    loading: deleteLoading,
+    execute: deleteCommentFn,
+  } = useAsyncFunction(deleteComment);
+
+  const {
+    getReplies,
+    createLocalComment,
+    post,
+    updateLocalComment,
+    deleteLocalComment,
+  } = usePost();
   const commentReplies = getReplies(id);
   const [repliesHidden, setRepliesHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -44,6 +56,12 @@ const Comment = ({ id, message, user, createdAt }) => {
     return commentUpdateFn({ postId: post.id, message, id }).then((comment) => {
       setIsEditing(false);
       updateLocalComment({ id, message: comment.message });
+    });
+  };
+
+  const onCommentDelete = () => {
+    return deleteCommentFn({ postId: post.id, id }).then(({ id }) => {
+      deleteLocalComment(id);
     });
   };
 
@@ -83,8 +101,15 @@ const Comment = ({ id, message, user, createdAt }) => {
             isActive={isEditing}
             onClick={() => setIsEditing(!isEditing)}
           />
-          <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
+          <IconBtn
+            Icon={FaTrash}
+            aria-label="Delete"
+            color="danger"
+            onClick={onCommentDelete}
+            disabled={deleteLoading}
+          />
         </div>
+        {deleteError && <div className="error-msg mt-1">{deleteError}</div>}
       </div>
       {isReplying && (
         <div className="mt-1 ml-3">

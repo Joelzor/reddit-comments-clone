@@ -132,12 +132,12 @@ app.delete("/posts/:postId/comments/:commentId", async (req, res) => {
     return res.status(403).send("You can't delete someone else's comment!");
   }
 
-  await prisma.comment.delete({
+  const deletedCommentId = await prisma.comment.delete({
     where: { id: req.params.commentId },
     select: { id: true },
   });
 
-  res.status(200).send("success");
+  res.status(200).json(deletedCommentId);
 });
 
 const port = process.env.PORT || 4000;
