@@ -16,9 +16,11 @@ const PostProvider = ({ children }) => {
   // creating local state for comments- we need to combine the newly created comments with the comments coming from the db
   const [comments, setComments] = useState([]);
 
+  console.log("comments", comments);
+
   // creating an object of grouped comments for the nesting
   const commentsByParentId = useMemo(() => {
-    if (comments === null) return [];
+    // if (comments === null) return [];
     const group = {};
     comments.forEach((comment) => {
       // if left hand is not falsy, do nothing
@@ -31,7 +33,7 @@ const PostProvider = ({ children }) => {
   }, [comments]);
 
   useEffect(() => {
-    if (post?.comments !== null) return;
+    if (post?.comments == null) return;
     setComments(post.comments);
   }, [post?.comments]);
 
