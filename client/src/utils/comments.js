@@ -13,3 +13,9 @@ export const updateComment = ({ postId, message, id }) => {
     data: { message },
   });
 };
+
+export const deleteComment = ({ postId, id }) => {
+  return request(`posts/${postId}/comments/${id}`, {
+    method: "DELETE",
+  });
+};

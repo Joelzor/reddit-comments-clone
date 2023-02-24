@@ -122,6 +122,24 @@ app.put("/posts/:postId/comments/:commentId", async (req, res) => {
   res.status(200).json(updatedComment);
 });
 
+app.delete("/posts/:postId/comments/:commentId", async (req, res) => {
+  const { userId } = await prisma.comment.findUnique({
+    where: { id: req.params.commentId },
+    select: { userId: true },
+  });
+
+  if (userId !== req.cookies.userId) {
+    return res.status(403).send("You can't delete someone else's comment!");
+  }
+
+  await prisma.comment.delete({
+    where: { id: req.params.commentId },
+    select: { id: true },
+  });
+
+  res.status(200).send("success");
+});
+
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
