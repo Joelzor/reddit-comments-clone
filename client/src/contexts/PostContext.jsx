@@ -16,7 +16,7 @@ const PostProvider = ({ children }) => {
   // creating local state for comments- we need to combine the newly created comments with the comments coming from the db
   const [comments, setComments] = useState([]);
 
-  console.log("comments", comments);
+  // console.log("comments", comments);
 
   // creating an object of grouped comments for the nesting
   const commentsByParentId = useMemo(() => {
@@ -47,6 +47,18 @@ const PostProvider = ({ children }) => {
     });
   };
 
+  const updateLocalComment = ({ id, message }) => {
+    setComments((prevComments) => {
+      return prevComments.map((comment) => {
+        if (comment.id === id) {
+          return { ...comment, message };
+        } else {
+          return comment;
+        }
+      });
+    });
+  };
+
   return (
     <Context.Provider
       // commentsByParentId[null] is the group of comments that don't have parent id's - they are not nested comments
@@ -55,6 +67,7 @@ const PostProvider = ({ children }) => {
         getReplies,
         rootComments: commentsByParentId[null],
         createLocalComment,
+        updateLocalComment,
       }}
     >
       {loading ? (

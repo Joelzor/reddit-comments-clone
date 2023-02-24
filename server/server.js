@@ -110,7 +110,7 @@ app.put("/posts/:postId/comments/:commentId", async (req, res) => {
   });
 
   if (userId !== req.cookies.userId) {
-    res.status(403).send("You can't update someone else's comment!");
+    return res.status(403).send("You can't update someone else's comment!");
   }
 
   const updatedComment = await prisma.comment.update({

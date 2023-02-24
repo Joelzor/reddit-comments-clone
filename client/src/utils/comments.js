@@ -7,8 +7,8 @@ export const createComment = ({ postId, message, parentId }) => {
   });
 };
 
-export const updateComment = ({ postId, message, commentId }) => {
-  return request(`posts/${postId}/comments/${commentId}`, {
+export const updateComment = ({ postId, message, id }) => {
+  return request(`posts/${postId}/comments/${id}`, {
     method: "PUT",
     data: { message },
   });

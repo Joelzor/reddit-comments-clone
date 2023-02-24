@@ -5,7 +5,7 @@ import { usePost } from "../contexts/PostContext";
 import Comments from "./Comments";
 import CreateComment from "./CreateComment";
 import { useAsyncFunction } from "../hooks/useAsync";
-import { createComment } from "../utils/comments";
+import { createComment, updateComment } from "../utils/comments";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -18,18 +18,33 @@ const Comment = ({ id, message, user, createdAt }) => {
     loading,
     execute: commentReplyFn,
   } = useAsyncFunction(createComment);
-  const { getReplies, createLocalComment, post } = usePost();
+
+  const {
+    error: updateError,
+    loading: updateLoading,
+    execute: commentUpdateFn,
+  } = useAsyncFunction(updateComment);
+  const { getReplies, createLocalComment, post, updateLocalComment } =
+    usePost();
   const commentReplies = getReplies(id);
   const [repliesHidden, setRepliesHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const onCommentReply = (message) => {
     return commentReplyFn({ postId: post.id, message, parentId: id }).then(
       (comment) => {
-        createLocalComment(comment);
         setIsReplying(false);
+        createLocalComment(comment);
       }
     );
+  };
+
+  const onCommentUpdate = (message) => {
+    return commentUpdateFn({ postId: post.id, message, id }).then((comment) => {
+      setIsEditing(false);
+      updateLocalComment({ id, message: comment.message });
+    });
   };
 
   return (
@@ -41,7 +56,17 @@ const Comment = ({ id, message, user, createdAt }) => {
             {dateFormatter.format(Date.parse(createdAt))}
           </span>
         </div>
-        <div className="message">{message}</div>
+        {isEditing ? (
+          <CreateComment
+            autoFocus
+            initialValue={message}
+            onSubmit={onCommentUpdate}
+            loading={updateLoading}
+            error={updateError}
+          />
+        ) : (
+          <div className="message">{message}</div>
+        )}
         <div className="footer">
           <IconBtn Icon={FaHeart} aria-label="Like">
             2
@@ -52,7 +77,12 @@ const Comment = ({ id, message, user, createdAt }) => {
             aria-label={isReplying ? "Cancel Reply" : "Reply"}
             onClick={() => setIsReplying(!isReplying)}
           />
-          <IconBtn Icon={FaEdit} aria-label="Edit" />
+          <IconBtn
+            Icon={FaEdit}
+            aria-label={isEditing ? "Cancel Edit" : "Edit"}
+            isActive={isEditing}
+            onClick={() => setIsEditing(!isEditing)}
+          />
           <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
       </div>
