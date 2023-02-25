@@ -5,7 +5,12 @@ import { usePost } from "../contexts/PostContext";
 import Comments from "./Comments";
 import CreateComment from "./CreateComment";
 import { useAsyncFunction } from "../hooks/useAsync";
-import { createComment, updateComment, deleteComment } from "../utils/comments";
+import {
+  createComment,
+  updateComment,
+  deleteComment,
+  toggleCommentLike,
+} from "../utils/comments";
 // import { useUser } from "../hooks/useUser";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -32,12 +37,16 @@ const Comment = ({ id, message, user, createdAt, likeCount, likedByMe }) => {
     execute: deleteCommentFn,
   } = useAsyncFunction(deleteComment);
 
+  const { loading: likeLoading, execute: toggleLikeFn } =
+    useAsyncFunction(toggleCommentLike);
+
   const {
     getReplies,
     createLocalComment,
     post,
     updateLocalComment,
     deleteLocalComment,
+    toggleLocalCommentLike,
   } = usePost();
   const commentReplies = getReplies(id);
   const [repliesHidden, setRepliesHidden] = useState(false);
@@ -69,6 +78,12 @@ const Comment = ({ id, message, user, createdAt, likeCount, likedByMe }) => {
     });
   };
 
+  const onLikeToggle = () => {
+    return toggleLikeFn({ postId: post.id, id }).then(({ addLike }) => {
+      toggleLocalCommentLike(id, addLike);
+    });
+  };
+
   return (
     <>
       <div className="comment">
@@ -93,6 +108,8 @@ const Comment = ({ id, message, user, createdAt, likeCount, likedByMe }) => {
           <IconBtn
             Icon={likedByMe ? FaHeart : FaRegHeart}
             aria-label={likedByMe ? "Unlike" : "Like"}
+            onClick={onLikeToggle}
+            disabled={likeLoading}
           >
             {likeCount}
           </IconBtn>

@@ -202,7 +202,7 @@ app.post("/posts/:postId/comments/:commentId/toggleLike", async (req, res) => {
         },
       })
       .then(() => {
-        const like = { deleteLike: true };
+        const like = { addLike: false };
         res.status(200).json(like);
       });
   }

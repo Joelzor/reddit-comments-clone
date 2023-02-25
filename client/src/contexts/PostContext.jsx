@@ -65,6 +65,33 @@ const PostProvider = ({ children }) => {
     });
   };
 
+  const toggleLocalCommentLike = (id, addLike) => {
+    setComments((prevComments) => {
+      return prevComments.map((comment) => {
+        // this is the correct comment
+        if (id === comment.id) {
+          // if true, we increment the like count etc
+          if (addLike) {
+            return {
+              ...comment,
+              likeCount: comment.likeCount + 1,
+              likedByMe: true,
+            };
+          } else {
+            // if false, we do the opposite
+            return {
+              ...comment,
+              likeCount: comment.likeCount - 1,
+              likedByMe: false,
+            };
+          }
+        } else {
+          return comment;
+        }
+      });
+    });
+  };
+
   return (
     <Context.Provider
       // commentsByParentId[null] is the group of comments that don't have parent id's - they are not nested comments
@@ -75,6 +102,7 @@ const PostProvider = ({ children }) => {
         createLocalComment,
         updateLocalComment,
         deleteLocalComment,
+        toggleLocalCommentLike,
       }}
     >
       {loading ? (
