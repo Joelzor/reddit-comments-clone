@@ -176,6 +176,38 @@ app.delete("/posts/:postId/comments/:commentId", async (req, res) => {
   res.status(200).json(deletedCommentId);
 });
 
+app.post("/posts/:postId/comments/:commentId/toggleLike", async (req, res) => {
+  // as we need to toggle the like, we get the necessary data to determine if we need to like or unlike
+  const data = {
+    commentId: req.params.commentId,
+    userId: req.cookies.userId,
+  };
+
+  const like = await prisma.like.findUnique({
+    where: { userId_commentId: data },
+  });
+
+  // if null, we create the like
+  // if not, we delete the like
+  if (like == null) {
+    await prisma.like.create({ data }).then(() => {
+      const like = { addLike: true };
+      res.status(201).json(like);
+    });
+  } else {
+    await prisma.like
+      .delete({
+        where: {
+          userId_commentId: data,
+        },
+      })
+      .then(() => {
+        const like = { deleteLike: true };
+        res.status(200).json(like);
+      });
+  }
+});
+
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
