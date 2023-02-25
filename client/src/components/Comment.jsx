@@ -6,6 +6,7 @@ import Comments from "./Comments";
 import CreateComment from "./CreateComment";
 import { useAsyncFunction } from "../hooks/useAsync";
 import { createComment, updateComment, deleteComment } from "../utils/comments";
+import { useUser } from "../hooks/useUser";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
@@ -42,6 +43,9 @@ const Comment = ({ id, message, user, createdAt }) => {
   const [repliesHidden, setRepliesHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  // const currentUser = useUser();
+  // console.log(document.cookie);
+  // console.log(currentUser);
 
   const onCommentReply = (message) => {
     return commentReplyFn({ postId: post.id, message, parentId: id }).then(
@@ -95,6 +99,7 @@ const Comment = ({ id, message, user, createdAt }) => {
             aria-label={isReplying ? "Cancel Reply" : "Reply"}
             onClick={() => setIsReplying(!isReplying)}
           />
+
           <IconBtn
             Icon={FaEdit}
             aria-label={isEditing ? "Cancel Edit" : "Edit"}

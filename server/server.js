@@ -61,24 +61,52 @@ app.get("/posts", async (req, res) => {
 app.get("/posts/:id", async (req, res) => {
   const { id } = req.params;
 
-  const post = await prisma.post.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      body: true,
-      title: true,
-      comments: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        select: COMMENT_SELECT_FIELDS,
+  await prisma.post
+    .findUnique({
+      where: {
+        id,
       },
-    },
-  });
+      select: {
+        id: true,
+        body: true,
+        title: true,
+        comments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            ...COMMENT_SELECT_FIELDS,
+            _count: { select: { likes: true } },
+          },
+        },
+      },
+    })
+    .then(async (post) => {
+      // finding all the likes from the logged in user
+      const likes = await prisma.like.findMany({
+        where: {
+          userId: req.cookies.userId,
+          commentId: { in: post.comments.map((comment) => comment.id) },
+        },
+      });
 
-  res.status(200).json(post);
+      // we keep all the original post data, but we're editing the comments property to keep all the original comment fields but also add a new likedByMe Boolean property that tells us if the user has liked the comment or not, as well as a simple count of all the likes on the comment
+      const completePost = {
+        ...post,
+        comments: post.comments.map((comment) => {
+          const { _count, ...commentFields } = comment;
+          return {
+            ...commentFields,
+            likedByMe: likes.find(
+              (like) => like.commentId === comment.commentId
+            ),
+            count: _count.likes,
+          };
+        }),
+      };
+
+      res.status(200).json(completePost);
+    });
 });
 
 app.post("/posts/:id/comments", async (req, res) => {
@@ -86,17 +114,25 @@ app.post("/posts/:id/comments", async (req, res) => {
     res.status(400).send("A comment cannot be empty");
   }
 
-  const comment = await prisma.comment.create({
-    data: {
-      message: req.body.message,
-      userId: req.cookies.userId,
-      parentId: req.body.parentId,
-      postId: req.params.id,
-    },
-    select: COMMENT_SELECT_FIELDS,
-  });
+  await prisma.comment
+    .create({
+      data: {
+        message: req.body.message,
+        userId: req.cookies.userId,
+        parentId: req.body.parentId,
+        postId: req.params.id,
+      },
+      select: COMMENT_SELECT_FIELDS,
+    })
+    .then((comment) => {
+      const newComment = {
+        ...comment,
+        likeCount: 0,
+        likedByMe: false,
+      };
 
-  res.status(201).json(comment);
+      res.status(201).json(newComment);
+    });
 });
 
 app.put("/posts/:postId/comments/:commentId", async (req, res) => {
