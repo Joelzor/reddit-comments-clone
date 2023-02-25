@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import IconBtn from "./IconBtn";
-import { FaHeart, FaReply, FaEdit, FaTrash } from "react-icons/fa";
+import { FaHeart, FaReply, FaEdit, FaTrash, FaRegHeart } from "react-icons/fa";
 import { usePost } from "../contexts/PostContext";
 import Comments from "./Comments";
 import CreateComment from "./CreateComment";
 import { useAsyncFunction } from "../hooks/useAsync";
 import { createComment, updateComment, deleteComment } from "../utils/comments";
-import { useUser } from "../hooks/useUser";
+// import { useUser } from "../hooks/useUser";
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
   timeStyle: "short",
 });
 
-const Comment = ({ id, message, user, createdAt }) => {
+const Comment = ({ id, message, user, createdAt, likeCount, likedByMe }) => {
   const {
     error,
     loading,
@@ -90,8 +90,11 @@ const Comment = ({ id, message, user, createdAt }) => {
           <div className="message">{message}</div>
         )}
         <div className="footer">
-          <IconBtn Icon={FaHeart} aria-label="Like">
-            2
+          <IconBtn
+            Icon={likedByMe ? FaHeart : FaRegHeart}
+            aria-label={likedByMe ? "Unlike" : "Like"}
+          >
+            {likeCount}
           </IconBtn>
           <IconBtn
             isActive={isReplying}

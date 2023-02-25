@@ -100,7 +100,7 @@ app.get("/posts/:id", async (req, res) => {
             likedByMe: likes.find(
               (like) => like.commentId === comment.commentId
             ),
-            count: _count.likes,
+            likeCount: _count.likes,
           };
         }),
       };
