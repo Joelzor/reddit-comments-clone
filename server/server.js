@@ -10,10 +10,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: false,
+    origin: process.env.CLIENT_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    // allowedHeaders: ["Content-Type"],
+    allowedHeaders: ["Content-Type"],
   })
 );
 app.use(express.json());
